@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="button_background">#99CCFF</color>
+    <color name="button_hover_background">#9933EE</color>
+    <color name="button_disabled_background">#CCCCCC</color>
+    <color name="button_stroke">#000000</color>
+</resources>
