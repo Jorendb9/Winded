@@ -1,8 +1,14 @@
 package com.theriddlebrothers.winded;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import com.theriddlebrothers.winded.Instrument.Keys;
 
 import android.app.Activity;
@@ -21,115 +27,114 @@ public class MainActivity extends Activity {
 
 	protected final String TAG = "WindedMainActivity";
 	private Instrument instrument;
-	
-	private SoundMeter meter;
-	private final int DEFAULT_METER_THRESHOLD = 20;
-	private double currentMeterThreshold;
+    private DemoView view;
+    private SoundMeter meter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        view = new DemoView(this);
+
         setContentView(R.layout.activity_main);
-        
-        // Initialize instrument
+
         instrument = new Instrument((AudioManager)getSystemService(Context.AUDIO_SERVICE), MainActivity.this);
-        findViewById(R.id.cKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.C));
-        findViewById(R.id.cSharpKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.C));
-        findViewById(R.id.dKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.D));
-        findViewById(R.id.dSharpKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.D));
-        findViewById(R.id.eKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.E));
-        findViewById(R.id.fKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.F));
-        findViewById(R.id.fSharpKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.F));
-        findViewById(R.id.gKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.G));
-        findViewById(R.id.gSharpKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.G));
-        findViewById(R.id.aKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.A));
-        findViewById(R.id.aSharpKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.A));
-        findViewById(R.id.bKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.B));
-        //findViewById(R.id.octaveKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.Octave));
-        findViewById(R.id.sharpKey).setOnTouchListener(new KeyTouchListener(Instrument.Keys.Sharp));
-        
-        // Hide/show sharp keys
-        findViewById(R.id.sharpKey).setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View view, MotionEvent event) {
-				LinearLayout sharpKeysLayout = (LinearLayout)findViewById(R.id.sharpKeysLayout);
-				LinearLayout standardKeysLayout = (LinearLayout)findViewById(R.id.standardKeysLayout);
-				
-				if(event.getAction() == MotionEvent.ACTION_DOWN) {
-					// Show sharp keys
-					sharpKeysLayout.setVisibility(View.VISIBLE);
-					standardKeysLayout.setVisibility(View.GONE);
-					instrument.pressKey(Keys.Sharp);
-	            } else if (event.getAction() == MotionEvent.ACTION_UP) {
-	            	// Show standard keys
-					sharpKeysLayout.setVisibility(View.GONE);
-					standardKeysLayout.setVisibility(View.VISIBLE);
-					instrument.releaseKey(Keys.Sharp);
-	            }
-				return false;
-			}
-        });
 
         // Initialize sound meter
         meter = new SoundMeter();
         meter.start();
         new Timer().scheduleAtFixedRate(new MonitorDecibelsTask(), 100, 100);
-        
-        // Add buttons
-        /*String[] keys = { "C", "D", "E", "F", "G" };
-        for(int i = 0; i < keys.length; i++) {
-        	String key = keys[i];
-            LinearLayout keyLayout = (LinearLayout) findViewById(R.id.keyLayout);
-            
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-			     LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			
-			layoutParams.setMargins(10, 10, 10, 10);
-
-            Button btn = new Button(this);
-            btn.setBackgroundResource(R.color.button_background);
-            btn.setHeight(100);
-            btn.setText(key);
-            keyLayout.addView(btn, layoutParams);
-        }*/
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
-    
     // Monitor external sound to determine breath level
     private class MonitorDecibelsTask extends TimerTask {
-	   public void run() {
-		   double amplitude = meter.getAmplitude();
-		   Log.d(TAG, "Breath: " + Double.toString(amplitude));
-		   instrument.play((float)amplitude);
-	   }
-	}
-    
-	
-	public class KeyTouchListener implements OnTouchListener
-	{
-		Instrument.Keys keyValue;
-		
-		public KeyTouchListener(Instrument.Keys keyValue) {
-			this.keyValue = keyValue;
-		}
-			
-		@Override
-		public boolean onTouch(View v, MotionEvent event)
-		{
-			if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                Log.d(TAG, "Key pressed: " + keyValue);
-                instrument.pressKey(keyValue);
-            } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                Log.d(TAG, "Key released: " + keyValue);
-                instrument.releaseKey(keyValue);
+        public void run() {
+            double amplitude = meter.getAmplitude();
+            //Log.d(TAG, "Breath: " + Double.toString(amplitude));
+            instrument.play((float)amplitude);
+        }
+    }
+
+    private class DemoView extends View implements OnTouchListener {
+
+        private ArrayList<Key> keys;
+        private Drawable drawableArea;
+
+        public DemoView(Context context){
+            super(context);
+
+            keys = new ArrayList<Key>();
+            keys.add(new Key(200, 80));
+            keys.add(new Key(200, 200));
+            keys.add(new Key(200, 320));
+            keys.add(new Key(200, 440));
+
+        }
+
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            Log.d(TAG, "You click at x = " + event.getX() + " and y = " + event.getY());
+            float x = event.getX();
+            float y = event.getY();
+            CheckCollision(x, y);
+            return false;
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            Log.d(TAG, "You click at x = " + event.getX() + " and y = " + event.getY());
+            float x = event.getX();
+            float y = event.getY();
+            CheckCollision(x, y);
+            return false;
+        }
+
+        public void CheckCollision(float x, float y) {
+            for(int i = 0; i < keys.size(); i++) {
+                if (keys.get(i).IsTouching(x, y)) {
+                    Log.d(TAG, "You are touching key " + i);
+                }
             }
-			return false;
-		}
-	
-	};
+        }
+
+        @Override protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            for(int i = 0; i < keys.size(); i++) {
+                this.keys.get(i).Draw(canvas);
+            }
+        }
+    }
+
+    private class Key {
+        private int x;
+        private int y;
+        private int width;
+        private int height;
+        private Rect rect;
+
+        public Key(int x, int y) {
+            this.x = x;
+            this.y = y;
+            this.width = 100;
+            this.height = 100;
+            rect = new Rect(this.x, this.y, this.x + this.width, this.y + this.height);
+        }
+
+        public boolean IsTouching(float x, float y) {
+            if (this.x < x
+                    && x < (this.x + this.width)
+                    && this.y < y
+                    && y < (this.y + this.height)) {
+                return true;
+            }
+            return false;
+        }
+
+        public void Draw(Canvas canvas) {
+            Paint paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
+            paint.setAntiAlias(true);
+            paint.setColor(Color.BLUE);
+            canvas.drawRect(rect, paint);
+        }
+    }
 }
