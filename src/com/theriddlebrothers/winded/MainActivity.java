@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
+import android.graphics.*;
+import android.view.*;
 import com.theriddlebrothers.winded.Instrument.Keys;
 
 import android.app.Activity;
@@ -17,86 +14,133 @@ import android.media.AudioManager;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
 
 	protected final String TAG = "WindedMainActivity";
-	private Instrument instrument;
-    private DemoView view;
-    private SoundMeter meter;
-	
+    private CanvasView canvasView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        view = new DemoView(this);
+        canvasView = new CanvasView(this);
 
         setContentView(R.layout.activity_main);
+        LinearLayout canvas = (LinearLayout)findViewById(R.id.instrumentCanvas);
+        canvas.addView(canvasView);
 
-        instrument = new Instrument((AudioManager)getSystemService(Context.AUDIO_SERVICE), MainActivity.this);
 
-        // Initialize sound meter
-        meter = new SoundMeter();
-        meter.start();
-        new Timer().scheduleAtFixedRate(new MonitorDecibelsTask(), 100, 100);
     }
-    // Monitor external sound to determine breath level
-    private class MonitorDecibelsTask extends TimerTask {
-        public void run() {
-            double amplitude = meter.getAmplitude();
-            //Log.d(TAG, "Breath: " + Double.toString(amplitude));
-            instrument.play((float)amplitude);
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int numPointers = event.getPointerCount();
+        ArrayList<Key> keysBeingPressed = new ArrayList<Key>();
+        for(int i = 0; i < numPointers; i++) {
+            int pointerId = event.getPointerId(i);
+            switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_POINTER_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    // @todo remove try/catch once i figure out what is wrong here
+                    try {
+                        float x = event.getX(pointerId);
+                        float y = event.getY(pointerId);
+                        keysBeingPressed.addAll(canvasView.CheckCollision(x, y));
+                    } catch(Exception ex) {
+
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                    //canvasView.CheckCollision(0, 0);
+                    break;
+            }
         }
+
+        // Release keys
+        for(int i = 0; i < canvasView.keys.size(); i++) {
+            if (!keysBeingPressed.contains(canvasView.keys.get(i)))
+                canvasView.instrument.releaseKey(canvasView.keys.get(i).key);
+        }
+
+        return false;
     }
 
-    private class DemoView extends View implements OnTouchListener {
+    private class CanvasView extends View  {
 
+        private GestureDetector gestureDetector;
         private ArrayList<Key> keys;
-        private Drawable drawableArea;
+        private Instrument instrument;
+        private SoundMeter meter;
 
-        public DemoView(Context context){
+        public CanvasView(Context context){
             super(context);
 
+            instrument = new Instrument((AudioManager)getSystemService(Context.AUDIO_SERVICE), MainActivity.this);
+
+            WindowManager mWinMgr = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+            Point outset = new Point();
+            mWinMgr.getDefaultDisplay().getSize(outset);
+
+            // Initialize sound meter
+            meter = new SoundMeter();
+            meter.start();
+            new Timer().scheduleAtFixedRate(new MonitorDecibelsTask(), 100, 100);
+
+
+            int numKeys = 7;
+            // keys should span 40% of screen
+            int keyWidth = (outset.x / 10) * 4;
+
+            int keyMargin = 10;
+            int totalMargin = (numKeys) * keyMargin;
+            int keyHeight = (outset.y - totalMargin) / numKeys;
+            int rightPos =  outset.x - keyWidth;
+
+            // @todo refactor this crap
             keys = new ArrayList<Key>();
-            keys.add(new Key(200, 80));
-            keys.add(new Key(200, 200));
-            keys.add(new Key(200, 320));
-            keys.add(new Key(200, 440));
-
+            keys.add(new Key(rightPos, 0, keyWidth, keyHeight, Instrument.Keys.B));
+            keys.add(new Key(rightPos, keyHeight + (keyMargin), keyWidth, keyHeight, Instrument.Keys.A));
+            keys.add(new Key(rightPos, keyHeight * 2 + (keyMargin) * 2, keyWidth, keyHeight, Instrument.Keys.G));
+            keys.add(new Key(rightPos, keyHeight * 3 + (keyMargin) * 3, keyWidth, keyHeight, Instrument.Keys.F));
+            keys.add(new Key(rightPos, keyHeight * 4 + (keyMargin) * 4, keyWidth, keyHeight, Instrument.Keys.E));
+            keys.add(new Key(rightPos, keyHeight * 5 + (keyMargin) * 5, keyWidth, keyHeight, Instrument.Keys.D));
+            keys.add(new Key(rightPos, keyHeight * 6 + (keyMargin) * 6, keyWidth, keyHeight, Instrument.Keys.C));
         }
 
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-            Log.d(TAG, "You click at x = " + event.getX() + " and y = " + event.getY());
-            float x = event.getX();
-            float y = event.getY();
-            CheckCollision(x, y);
-            return false;
+        // Monitor external sound to determine breath level
+        private class MonitorDecibelsTask extends TimerTask {
+            public void run() {
+                double amplitude = meter.getAmplitude();
+                //Log.d(TAG, "Breath: " + Double.toString(amplitude));
+                instrument.play((float)amplitude);
+            }
         }
 
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            Log.d(TAG, "You click at x = " + event.getX() + " and y = " + event.getY());
-            float x = event.getX();
-            float y = event.getY();
-            CheckCollision(x, y);
-            return false;
-        }
-
-        public void CheckCollision(float x, float y) {
+        public ArrayList<Key> CheckCollision(float x, float y) {
+            boolean redraw = false;
+            ArrayList<Key> keysBeingPressed = new ArrayList<Key>();
             for(int i = 0; i < keys.size(); i++) {
                 if (keys.get(i).IsTouching(x, y)) {
                     Log.d(TAG, "You are touching key " + i);
+                    instrument.pressKey(keys.get(i).key);
+                    keysBeingPressed.add(keys.get(i));
+                    redraw = true;
                 }
             }
+            this.invalidate();
+            return keysBeingPressed;
         }
 
         @Override protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
+            // Clear canvas
+            Paint paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawColor(Color.WHITE);
 
             for(int i = 0; i < keys.size(); i++) {
                 this.keys.get(i).Draw(canvas);
@@ -110,30 +154,36 @@ public class MainActivity extends Activity {
         private int width;
         private int height;
         private Rect rect;
+        private boolean isTouching = false;
+        private Keys key;
 
-        public Key(int x, int y) {
+        public Key(int x, int y, int width, int height, Keys key) {
             this.x = x;
             this.y = y;
-            this.width = 100;
-            this.height = 100;
+            this.width = width;
+            this.height = height;
+            this.key = key;
             rect = new Rect(this.x, this.y, this.x + this.width, this.y + this.height);
         }
 
         public boolean IsTouching(float x, float y) {
-            if (this.x < x
-                    && x < (this.x + this.width)
-                    && this.y < y
-                    && y < (this.y + this.height)) {
-                return true;
+            isTouching = false;
+            if (x >= this.x
+                    && x <= (this.x + this.width)
+                    && y >= this.y
+                    && y <= (this.y + this.height)) {
+                isTouching = true;
+                Log.d(TAG, "x=" + this.x + ", pointerx=" + x + ", y=" + this.y + " pointery=" + y);
             }
-            return false;
+            return isTouching;
         }
 
         public void Draw(Canvas canvas) {
             Paint paint = new Paint();
             paint.setStyle(Paint.Style.FILL);
             paint.setAntiAlias(true);
-            paint.setColor(Color.BLUE);
+            if (isTouching) paint.setColor(Color.BLUE);
+            else paint.setColor(Color.RED);
             canvas.drawRect(rect, paint);
         }
     }
