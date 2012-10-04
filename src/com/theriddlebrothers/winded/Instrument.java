@@ -3,6 +3,8 @@ package com.theriddlebrothers.winded;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.nfc.Tag;
+import android.util.Log;
 import com.theriddlebrothers.winded.Instrument.Keys;
 
 import android.content.Context;
@@ -10,6 +12,8 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 
 public class Instrument {
+
+    private final String TAG = "Instrument";
 
 	private int register = 4;
 		
@@ -48,7 +52,7 @@ public class Instrument {
         mAudioManager = audioManager;
         mSoundPoolMap = new HashMap<Keys, Integer>();
         
-        // Load sounds
+        // Load sounds - currently only one octave.
         mSoundPoolMap.put(Keys.C, mSoundPool.load(context, R.raw.c4, 1));
         mSoundPoolMap.put(Keys.CSharp, mSoundPool.load(context, R.raw.csharp4, 1));
         mSoundPoolMap.put(Keys.D, mSoundPool.load(context, R.raw.d4, 1));
@@ -115,7 +119,7 @@ public class Instrument {
 		try {
 			mStream = mSoundPool.play(mSoundPoolMap.get(currentKey), velocity, velocity, 0, 0, 1.0f);
 		} catch(Exception ex) {
-			mSoundPool.stop(mStream);
+            Log.d(TAG, ex.getMessage());
 		}
 		
 		isPlaying = true;

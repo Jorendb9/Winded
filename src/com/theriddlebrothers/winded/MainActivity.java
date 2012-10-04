@@ -30,14 +30,12 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         LinearLayout canvas = (LinearLayout)findViewById(R.id.instrumentCanvas);
         canvas.addView(canvasView);
-
-
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int numPointers = event.getPointerCount();
-        ArrayList<Key> keysBeingPressed = new ArrayList<Key>();
+        ArrayList<KeyPresenter> keysBeingPressed = new ArrayList<KeyPresenter>();
         for(int i = 0; i < numPointers; i++) {
             int pointerId = event.getPointerId(i);
             switch(event.getAction()) {
@@ -60,19 +58,21 @@ public class MainActivity extends Activity {
             }
         }
 
-        // Release keys
+        // Now that we know all the keys that are being pressed, we
+        // have to remove any that are no longer pressing.
         for(int i = 0; i < canvasView.keys.size(); i++) {
-            if (!keysBeingPressed.contains(canvasView.keys.get(i)))
+            KeyPresenter keyToRelease = canvasView.keys.get(i);
+            if (!keysBeingPressed.contains(keyToRelease))
                 canvasView.instrument.releaseKey(canvasView.keys.get(i).key);
         }
 
-        return false;
+        return true;
     }
 
     private class CanvasView extends View  {
 
         private GestureDetector gestureDetector;
-        private ArrayList<Key> keys;
+        private ArrayList<KeyPresenter> keys;
         private Instrument instrument;
         private SoundMeter meter;
 
@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
             // Initialize sound meter
             meter = new SoundMeter();
             meter.start();
-            new Timer().scheduleAtFixedRate(new MonitorDecibelsTask(), 100, 100);
+            new Timer().scheduleAtFixedRate(new MonitorDecibelsTask(), 0, 50);
 
 
             int numKeys = 7;
@@ -101,14 +101,14 @@ public class MainActivity extends Activity {
             int rightPos =  outset.x - keyWidth;
 
             // @todo refactor this crap
-            keys = new ArrayList<Key>();
-            keys.add(new Key(rightPos, 0, keyWidth, keyHeight, Instrument.Keys.B));
-            keys.add(new Key(rightPos, keyHeight + (keyMargin), keyWidth, keyHeight, Instrument.Keys.A));
-            keys.add(new Key(rightPos, keyHeight * 2 + (keyMargin) * 2, keyWidth, keyHeight, Instrument.Keys.G));
-            keys.add(new Key(rightPos, keyHeight * 3 + (keyMargin) * 3, keyWidth, keyHeight, Instrument.Keys.F));
-            keys.add(new Key(rightPos, keyHeight * 4 + (keyMargin) * 4, keyWidth, keyHeight, Instrument.Keys.E));
-            keys.add(new Key(rightPos, keyHeight * 5 + (keyMargin) * 5, keyWidth, keyHeight, Instrument.Keys.D));
-            keys.add(new Key(rightPos, keyHeight * 6 + (keyMargin) * 6, keyWidth, keyHeight, Instrument.Keys.C));
+            keys = new ArrayList<KeyPresenter>();
+            keys.add(new KeyPresenter(rightPos, 0, keyWidth, keyHeight, Instrument.Keys.B));
+            keys.add(new KeyPresenter(rightPos, keyHeight + (keyMargin), keyWidth, keyHeight, Instrument.Keys.A));
+            keys.add(new KeyPresenter(rightPos, keyHeight * 2 + (keyMargin) * 2, keyWidth, keyHeight, Instrument.Keys.G));
+            keys.add(new KeyPresenter(rightPos, keyHeight * 3 + (keyMargin) * 3, keyWidth, keyHeight, Instrument.Keys.F));
+            keys.add(new KeyPresenter(rightPos, keyHeight * 4 + (keyMargin) * 4, keyWidth, keyHeight, Instrument.Keys.E));
+            keys.add(new KeyPresenter(rightPos, keyHeight * 5 + (keyMargin) * 5, keyWidth, keyHeight, Instrument.Keys.D));
+            keys.add(new KeyPresenter(rightPos, keyHeight * 6 + (keyMargin) * 6, keyWidth, keyHeight, Instrument.Keys.C));
         }
 
         // Monitor external sound to determine breath level
@@ -120,9 +120,9 @@ public class MainActivity extends Activity {
             }
         }
 
-        public ArrayList<Key> CheckCollision(float x, float y) {
+        public ArrayList<KeyPresenter> CheckCollision(float x, float y) {
             boolean redraw = false;
-            ArrayList<Key> keysBeingPressed = new ArrayList<Key>();
+            ArrayList<KeyPresenter> keysBeingPressed = new ArrayList<KeyPresenter>();
             for(int i = 0; i < keys.size(); i++) {
                 if (keys.get(i).IsTouching(x, y)) {
                     Log.d(TAG, "You are touching key " + i);
@@ -148,7 +148,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class Key {
+    /**
+     * Class used to present an instrument's keys to the view.
+     */
+    private class KeyPresenter {
         private int x;
         private int y;
         private int width;
@@ -157,7 +160,7 @@ public class MainActivity extends Activity {
         private boolean isTouching = false;
         private Keys key;
 
-        public Key(int x, int y, int width, int height, Keys key) {
+        public KeyPresenter(int x, int y, int width, int height, Keys key) {
             this.x = x;
             this.y = y;
             this.width = width;
