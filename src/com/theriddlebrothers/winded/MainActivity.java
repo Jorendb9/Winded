@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
     public boolean onTouchEvent(MotionEvent event) {
         int numPointers = event.getPointerCount();
         ArrayList<KeyPresenter> keysBeingPressed = new ArrayList<KeyPresenter>();
+        Log.d(TAG, numPointers + " fingers being pressed.");
         for(int i = 0; i < numPointers; i++) {
             int pointerId = event.getPointerId(i);
             switch(event.getAction()) {
@@ -62,9 +63,13 @@ public class MainActivity extends Activity {
         // have to remove any that are no longer pressing.
         for(int i = 0; i < canvasView.keys.size(); i++) {
             KeyPresenter keyToRelease = canvasView.keys.get(i);
-            if (!keysBeingPressed.contains(keyToRelease))
-                canvasView.instrument.releaseKey(canvasView.keys.get(i).key);
+            if (!keysBeingPressed.contains(keyToRelease))         {
+                KeyPresenter key = canvasView.keys.get(i);
+                canvasView.ReleaseKey(key);
+            }
         }
+
+        canvasView.ReDraw();
 
         return true;
     }
@@ -131,8 +136,16 @@ public class MainActivity extends Activity {
                     redraw = true;
                 }
             }
-            this.invalidate();
             return keysBeingPressed;
+        }
+
+        public void ReDraw() {
+            this.invalidate();
+        }
+
+        public void ReleaseKey(KeyPresenter key) {
+            key.ReleaseKey();
+            canvasView.instrument.releaseKey(key.key);
         }
 
         @Override protected void onDraw(Canvas canvas) {
@@ -167,6 +180,13 @@ public class MainActivity extends Activity {
             this.height = height;
             this.key = key;
             rect = new Rect(this.x, this.y, this.x + this.width, this.y + this.height);
+        }
+
+        /**
+         * Mark a key as not being touched.
+         */
+        public void ReleaseKey() {
+            isTouching = false;
         }
 
         public boolean IsTouching(float x, float y) {

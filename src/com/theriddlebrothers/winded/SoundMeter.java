@@ -19,11 +19,12 @@ package com.theriddlebrothers.winded;
 import java.io.IOException;
 
 import android.media.MediaRecorder;
+import android.nfc.Tag;
 import android.util.Log;
 
 public class SoundMeter {
         static final private double EMA_FILTER = 0.6;
-
+        static final private String TAG = "SoundMeter";
         private MediaRecorder mRecorder = null;
         private double mEMA = 0.0;
 
@@ -42,6 +43,7 @@ public class SoundMeter {
 						Log.d("SoundMeter", "Error in preparing recorder.");
 						e.printStackTrace();
 					}
+                    Log.d(TAG, "Starting sound meter...");
                     mRecorder.start();
                     mEMA = 0.0;
                 }
