@@ -1,8 +1,13 @@
 package com.theriddlebrothers.winded;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.media.AudioFormat;
+import android.media.AudioTrack;
+import android.media.audiofx.EnvironmentalReverb;
+import android.media.audiofx.PresetReverb;
 import android.nfc.Tag;
 import android.util.Log;
 import com.theriddlebrothers.winded.Instrument.Keys;
@@ -19,49 +24,155 @@ public class Instrument {
 		
 	public enum Keys {
 		C,
-		CSharp,
+		//CSharp,
 		D,
-		DSharp,
+		//DSharp,
 		E,
 		F,
-		FSharp,
+		//FSharp,
 		G,
-		GSharp,
+		//GSharp,
 		A,
-		ASharp,
+		//ASharp,
 		B,
-		Sharp,
-		Octave
+		//Sharp,
+		//Octave
 	}
 
+    private Context appContext;
 	private ArrayList<Keys> pressedKeys;
-	private SoundPool mSoundPool;
-	private AudioManager  mAudioManager;
-	private HashMap<Keys, Integer> mSoundPoolMap;
-	private int mStream = 0;
+    private AudioTrack audioTrack;
 	private double breath = 0;
 	private final double MIN_BREATH_LEVEL = 1.0;
 	private boolean isPlaying = false;
 	private Keys lastKey;
+    private HashMap<Keys, byte[]> soundPool;
 	
 	public Instrument(AudioManager audioManager, Context context) {
 		pressedKeys = new ArrayList<Keys>();
-		
-		// Init audio player
-        mSoundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
-        mAudioManager = audioManager;
-        mSoundPoolMap = new HashMap<Keys, Integer>();
-        
-        // Load sounds - currently only one octave.
-        mSoundPoolMap.put(Keys.C, mSoundPool.load(context, R.raw.c, 1));
-        mSoundPoolMap.put(Keys.D, mSoundPool.load(context, R.raw.d, 1));
-        mSoundPoolMap.put(Keys.E, mSoundPool.load(context, R.raw.e, 1));
-        mSoundPoolMap.put(Keys.F, mSoundPool.load(context, R.raw.f, 1));
-        mSoundPoolMap.put(Keys.G, mSoundPool.load(context, R.raw.g, 1));
-        mSoundPoolMap.put(Keys.A, mSoundPool.load(context, R.raw.a, 1));
-        mSoundPoolMap.put(Keys.B, mSoundPool.load(context, R.raw.b, 1));
+        soundPool = new HashMap<Keys, byte[]>();
+        appContext = context;
+
+        initAudio();
+
+        /*EnvironmentalReverb  mReverb = new EnvironmentalReverb(0,0);
+        mReverb.setEnabled(true);
+        audioTrack.attachAuxEffect(mReverb.getId());
+        audioTrack.setAuxEffectSendLevel(1.0f);*/
+
 	}
-	
+
+    private void initAudio() {
+        // Load audio data
+        for (Keys key : Keys.values()) {
+
+            try {
+                byte[] byteData;
+                int resourceId;
+
+                // @todo - this seems like it could be refactored...
+                switch(key) {
+                    case C :
+                        resourceId = R.raw.c;
+                        break;
+                    case D :
+                        resourceId = R.raw.d;
+                        break;
+                    case E :
+                        resourceId = R.raw.e;
+                        break;
+                    case F :
+                        resourceId = R.raw.f;
+                        break;
+                    case G :
+                        resourceId = R.raw.g;
+                        break;
+                    case A :
+                        resourceId = R.raw.a;
+                        break;
+                    case B :
+                        resourceId = R.raw.b;
+                        break;
+                    default:
+                            throw new Exception("No resource found for key: " + key);
+                }
+
+                InputStream audioStream = appContext.getResources().openRawResource(resourceId);
+                byteData = readBytes(audioStream);
+                soundPool.put(key, byteData);
+            } catch(Exception ex) {
+                ex.printStackTrace();
+                return;
+            }
+        }
+
+        // Set and push to audio track..
+        int intSize = android.media.AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT);
+
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
+
+        initReverb();
+    }
+
+    private void initReverb() {
+        // doesn't seem to be working?
+        // @see http://stackoverflow.com/questions/10409122/android-mediaplayer-with-audioeffect-getting-error-22-0
+        PresetReverb mReverb = new PresetReverb(1, 0);
+        mReverb.setPreset(PresetReverb.PRESET_LARGEROOM);
+        mReverb.setEnabled(true);
+        audioTrack.attachAuxEffect(mReverb.getId());
+        audioTrack.setAuxEffectSendLevel(1.0f);
+    }
+
+    private void playKey(Keys key) {
+
+        final Keys keyToPlay = key;
+        final byte[] keyData = soundPool.get(key);
+
+        Thread audioThread = new Thread(){
+            public void run(){
+
+                if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) return; //audioTrack.stop();
+
+                if (audioTrack!=null) {
+                    audioTrack.play();
+                    // Write the byte array to the track
+                    audioTrack.write(keyData, 0, keyData.length);
+                    audioTrack.pause();
+                }
+                else
+                    Log.d("TCAudio", "audio track is not initialised ");
+
+            }
+        };
+        audioThread.start();
+    }
+
+    private void stopAudio() {
+        // @todo - need to stop, not pause, right?
+        audioTrack.pause();
+    }
+
+    private byte[] readBytes(InputStream inputStream) throws IOException {
+        // this dynamically extends to take the bytes you read
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+
+        // this is storage overwritten on each iteration with bytes
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        // we need to know how may bytes were read to write them to the byteBuffer
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+
+        // and then we can return your byte array.
+        return byteBuffer.toByteArray();
+    }
+
 	public Keys currentKey() {
 		if (pressedKeys.size() <= 0) return null;
 		
@@ -69,13 +180,15 @@ public class Instrument {
 	}
 
 	public boolean isSharpPressed() {
-		return pressedKeys.contains(Keys.Sharp);
+		return false; //return pressedKeys.contains(Keys.Sharp);
 	}
 	
 	public void play(float breath) {
 		
 		if (pressedKeys.size() == 0 || !this.hasBreath(breath)) {
-			if (isPlaying) mSoundPool.stop(mStream);
+			if (isPlaying) {
+                stopAudio();
+            }
             isPlaying = false;
 			return;
 		}
@@ -83,7 +196,6 @@ public class Instrument {
 		// Get most recently pressed key
 		Keys currentKey = pressedKeys.get(pressedKeys.size() - 1);
 
-		
 		// If sharp key is pressed
 		if (isSharpPressed()) {
 			switch (currentKey) {
@@ -105,7 +217,7 @@ public class Instrument {
 		
 		// Don't re-play same sound, just set volume
 		if (lastKey == currentKey && isPlaying) {
-			mSoundPool.setVolume(mStream, velocity, velocity);
+            audioTrack.setStereoVolume(velocity, velocity);
 			return;
 		}
 
@@ -118,8 +230,8 @@ public class Instrument {
 
 		try {
             Log.d(TAG, "Playing new note.");
-            mSoundPool.stop(mStream);
-			mStream = mSoundPool.play(mSoundPoolMap.get(currentKey), velocity, velocity, 0, 0, 1.0f);
+            // @todo - play new sound
+            playKey(currentKey);
 		} catch(Exception ex) {
             Log.d(TAG, ex.getMessage());
 		}

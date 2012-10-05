@@ -38,13 +38,13 @@ public class SoundMeter {
                     mRecorder.setOutputFile("/dev/null"); 
                     try {
                         mRecorder.prepare();
+                        Log.d(TAG, "Starting sound meter...");
+                        mRecorder.start();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						Log.d("SoundMeter", "Error in preparing recorder.");
 						e.printStackTrace();
 					}
-                    Log.d(TAG, "Starting sound meter...");
-                    mRecorder.start();
                     mEMA = 0.0;
                 }
         }
