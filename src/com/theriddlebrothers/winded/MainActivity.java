@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.graphics.*;
+import android.graphics.drawable.shapes.OvalShape;
 import android.view.*;
 import com.theriddlebrothers.winded.Instrument.Keys;
 
@@ -35,8 +36,8 @@ public class MainActivity extends Activity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int numPointers = event.getPointerCount();
+
         ArrayList<KeyPresenter> keysBeingPressed = new ArrayList<KeyPresenter>();
-        Log.d(TAG, numPointers + " fingers being pressed.");
         for(int i = 0; i < numPointers; i++) {
             int pointerId = event.getPointerId(i);
             switch(event.getAction()) {
@@ -48,25 +49,30 @@ public class MainActivity extends Activity {
                         float x = event.getX(pointerId);
                         float y = event.getY(pointerId);
                         keysBeingPressed.addAll(canvasView.CheckCollision(x, y));
+
+                        // Now that we know all the keys that are being pressed, we
+                        // have to remove any that are no longer pressing.
+                        for(int j = 0; j < canvasView.keys.size(); j++) {
+                            KeyPresenter keyToRelease = canvasView.keys.get(j);
+                            if (!keysBeingPressed.contains(keyToRelease))         {
+                                KeyPresenter key = canvasView.keys.get(j);
+                                canvasView.ReleaseKey(key);
+                            }
+                        }
+
                     } catch(Exception ex) {
 
                     }
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_POINTER_UP:
+                case MotionEvent.ACTION_CANCEL:
                     //canvasView.CheckCollision(0, 0);
+
+                    Log.d(TAG, "Lift up");
                     break;
             }
-        }
 
-        // Now that we know all the keys that are being pressed, we
-        // have to remove any that are no longer pressing.
-        for(int i = 0; i < canvasView.keys.size(); i++) {
-            KeyPresenter keyToRelease = canvasView.keys.get(i);
-            if (!keysBeingPressed.contains(keyToRelease))         {
-                KeyPresenter key = canvasView.keys.get(i);
-                canvasView.ReleaseKey(key);
-            }
         }
 
         canvasView.ReDraw();
@@ -76,7 +82,6 @@ public class MainActivity extends Activity {
 
     private class CanvasView extends View  {
 
-        private GestureDetector gestureDetector;
         private ArrayList<KeyPresenter> keys;
         private Instrument instrument;
         private SoundMeter meter;
@@ -120,20 +125,16 @@ public class MainActivity extends Activity {
         private class MonitorDecibelsTask extends TimerTask {
             public void run() {
                 double amplitude = meter.getAmplitude();
-                //Log.d(TAG, "Breath: " + Double.toString(amplitude));
                 instrument.play((float)amplitude);
             }
         }
 
         public ArrayList<KeyPresenter> CheckCollision(float x, float y) {
-            boolean redraw = false;
             ArrayList<KeyPresenter> keysBeingPressed = new ArrayList<KeyPresenter>();
             for(int i = 0; i < keys.size(); i++) {
                 if (keys.get(i).IsTouching(x, y)) {
-                    Log.d(TAG, "You are touching key " + i);
                     instrument.pressKey(keys.get(i).key);
                     keysBeingPressed.add(keys.get(i));
-                    redraw = true;
                 }
             }
             return keysBeingPressed;
@@ -172,6 +173,7 @@ public class MainActivity extends Activity {
         private Rect rect;
         private boolean isTouching = false;
         private Keys key;
+        private final float fingerRadius = 15.0f;
 
         public KeyPresenter(int x, int y, int width, int height, Keys key) {
             this.x = x;
@@ -189,15 +191,26 @@ public class MainActivity extends Activity {
             isTouching = false;
         }
 
-        public boolean IsTouching(float x, float y) {
+        public boolean IsTouching(float touchX, float touchY) {
             isTouching = false;
-            if (x >= this.x
-                    && x <= (this.x + this.width)
-                    && y >= this.y
-                    && y <= (this.y + this.height)) {
+
+            // A user's finger is not just a single x/y pixel. We need to use a radius around the
+            // touch, so if they are on multiple keys, or half on a key, it still registers.
+            float xMin = touchX - fingerRadius;
+            float xMax = touchX + fingerRadius;
+            float yMin = touchY - fingerRadius;
+            float yMax = touchY + fingerRadius;
+
+            int upperBoundsX = this.x + this.width;
+            int upperBoundsY = this.y + this.height;
+
+            if (((xMax >= this.x && xMax <= upperBoundsX)        // Rightmost area of touch is within bounds
+                 || (xMin >= this.x && xMin <= upperBoundsX))       // Leftmost area of touch is within bounds
+                 && ((yMax >= this.y && yMax <= upperBoundsY)       // Lowermost area of touch is within bounds
+                 || (yMin >= this.y && yMin <= upperBoundsY))) {    // Uppermost area of touch is within bounds
                 isTouching = true;
-                Log.d(TAG, "x=" + this.x + ", pointerx=" + x + ", y=" + this.y + " pointery=" + y);
             }
+
             return isTouching;
         }
 

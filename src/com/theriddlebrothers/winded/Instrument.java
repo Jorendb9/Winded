@@ -53,18 +53,13 @@ public class Instrument {
         mSoundPoolMap = new HashMap<Keys, Integer>();
         
         // Load sounds - currently only one octave.
-        mSoundPoolMap.put(Keys.C, mSoundPool.load(context, R.raw.c4, 1));
-        mSoundPoolMap.put(Keys.CSharp, mSoundPool.load(context, R.raw.csharp4, 1));
-        mSoundPoolMap.put(Keys.D, mSoundPool.load(context, R.raw.d4, 1));
-        mSoundPoolMap.put(Keys.DSharp, mSoundPool.load(context, R.raw.dsharp4, 1));
-        mSoundPoolMap.put(Keys.E, mSoundPool.load(context, R.raw.e4, 1));
-        mSoundPoolMap.put(Keys.F, mSoundPool.load(context, R.raw.f4, 1));
-        mSoundPoolMap.put(Keys.FSharp, mSoundPool.load(context, R.raw.fsharp4, 1));
-        mSoundPoolMap.put(Keys.G, mSoundPool.load(context, R.raw.g4, 1));
-        mSoundPoolMap.put(Keys.GSharp, mSoundPool.load(context, R.raw.gsharp4, 1));
-        mSoundPoolMap.put(Keys.A, mSoundPool.load(context, R.raw.a4, 1));
-        mSoundPoolMap.put(Keys.ASharp, mSoundPool.load(context, R.raw.asharp4, 1));
-        mSoundPoolMap.put(Keys.B, mSoundPool.load(context, R.raw.b4, 1));
+        mSoundPoolMap.put(Keys.C, mSoundPool.load(context, R.raw.c, 1));
+        mSoundPoolMap.put(Keys.D, mSoundPool.load(context, R.raw.d, 1));
+        mSoundPoolMap.put(Keys.E, mSoundPool.load(context, R.raw.e, 1));
+        mSoundPoolMap.put(Keys.F, mSoundPool.load(context, R.raw.f, 1));
+        mSoundPoolMap.put(Keys.G, mSoundPool.load(context, R.raw.g, 1));
+        mSoundPoolMap.put(Keys.A, mSoundPool.load(context, R.raw.a, 1));
+        mSoundPoolMap.put(Keys.B, mSoundPool.load(context, R.raw.b, 1));
 	}
 	
 	public Keys currentKey() {
@@ -80,13 +75,14 @@ public class Instrument {
 	public void play(float breath) {
 		
 		if (pressedKeys.size() == 0 || !this.hasBreath(breath)) {
-			isPlaying = false;
-			mSoundPool.stop(mStream);
+			if (isPlaying) mSoundPool.stop(mStream);
+            isPlaying = false;
 			return;
 		}
 
 		// Get most recently pressed key
 		Keys currentKey = pressedKeys.get(pressedKeys.size() - 1);
+
 		
 		// If sharp key is pressed
 		if (isSharpPressed()) {
@@ -112,17 +108,22 @@ public class Instrument {
 			mSoundPool.setVolume(mStream, velocity, velocity);
 			return;
 		}
+
+        for(int i = 0; i < pressedKeys.size(); i++) {
+            Log.d(TAG, "Pressed key: " + pressedKeys.get(i));
+        }
 		
 		lastKey = currentKey;
+        isPlaying = true;
 
-		mSoundPool.stop(mStream);
 		try {
+            Log.d(TAG, "Playing new note.");
+            mSoundPool.stop(mStream);
 			mStream = mSoundPool.play(mSoundPoolMap.get(currentKey), velocity, velocity, 0, 0, 1.0f);
 		} catch(Exception ex) {
             Log.d(TAG, ex.getMessage());
 		}
-		
-		isPlaying = true;
+
 	}
 
 	/**
@@ -144,7 +145,6 @@ public class Instrument {
 		if (!pressedKeys.contains(key)) return;
 		
 		pressedKeys.remove(key);
-		mSoundPool.stop(mStream);
 	}
 	
 	/**
