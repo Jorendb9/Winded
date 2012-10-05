@@ -53,12 +53,6 @@ public class Instrument {
         soundManager = new SoundManager(context);
     }
 
-
-    private void playKey(Keys key) {
-        // @todo - make this dynamic
-        soundManager.play(R.raw.c);
-    }
-
     public Keys currentKey() {
         if (pressedKeys.size() <= 0) return null;
         return null;
@@ -71,7 +65,7 @@ public class Instrument {
     public void play(float breath) {
 
         if (pressedKeys.size() == 0 || !this.hasBreath(breath)) {
-            soundManager.stop();
+            if (isPlaying) soundManager.stop();
             isPlaying = false;
             return;
         }
@@ -109,10 +103,23 @@ public class Instrument {
         }
 
         lastKey = currentKey;
-        isPlaying = true;
+
+        int resource = 0;
+
+        switch(currentKey) {
+            case C: resource = R.raw.c; break;
+            case D: resource = R.raw.d; break;
+            case E: resource = R.raw.e; break;
+            case F: resource = R.raw.f; break;
+            case G: resource = R.raw.g; break;
+            case A: resource = R.raw.a; break;
+            case B: resource = R.raw.b; break;
+        }
 
         try {
-            playKey(currentKey);
+            //@todo - make this dynamic
+            if (!isPlaying) soundManager.play(resource);
+            isPlaying = true;
         } catch(Exception ex) {
             Log.d(TAG, ex.getMessage());
         }

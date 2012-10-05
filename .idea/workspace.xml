@@ -12,7 +12,7 @@
     </option>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="Instrument" />
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="instr" />
     <option name="TOOL_WINDOW_LOG_LEVEL" value="ERROR" />
   </component>
   <component name="ChangeListManager">
@@ -76,7 +76,7 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="95" column="0" selection-start="3321" selection-end="3321" vertical-scroll-proportion="-7.9615383">
+            <state line="128" column="0" selection-start="5072" selection-end="5072" vertical-scroll-proportion="-7.9615383">
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1180#1194#0" expanded="true" />
@@ -97,10 +97,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Instrument.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Instrument.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="50" selection-start="923" selection-end="923" vertical-scroll-proportion="0.0">
+            <state line="84" column="47" selection-start="2166" selection-end="2166" vertical-scroll-proportion="0.64760435">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -108,10 +108,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SoundManager.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="SoundManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="88" column="52" selection-start="2612" selection-end="2612" vertical-scroll-proportion="0.52704793">
+            <state line="162" column="57" selection-start="5174" selection-end="5174" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -651,17 +651,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="95" column="0" selection-start="3321" selection-end="3321" vertical-scroll-proportion="-7.9615383">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1180#1194#0" expanded="true" />
-            <element signature="e#5239#5253#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundMeter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="32" column="8" selection-start="1054" selection-end="1054" vertical-scroll-proportion="0.0">
@@ -678,18 +667,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java">
+    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="50" selection-start="923" selection-end="923" vertical-scroll-proportion="0.0">
+        <state line="128" column="0" selection-start="5072" selection-end="5072" vertical-scroll-proportion="-7.9615383">
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1180#1194#0" expanded="true" />
+            <element signature="e#5239#5253#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="88" column="52" selection-start="2612" selection-end="2612" vertical-scroll-proportion="0.52704793">
+        <state line="162" column="57" selection-start="5174" selection-end="5174" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="84" column="47" selection-start="2166" selection-end="2166" vertical-scroll-proportion="0.64760435">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
