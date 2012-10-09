@@ -90,9 +90,9 @@ public class SoundManager {
 
     private void stopAudio() {
         // @todo - need to stop, not pause, right?
-        if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+        /*if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
             audioTrack.stop();
-        }
+        } */
     }
 
     private byte[] readBytes(InputStream inputStream) throws IOException {
@@ -100,7 +100,7 @@ public class SoundManager {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
 
         // this is storage overwritten on each iteration with bytes
-        int bufferSize = 1024;
+        int bufferSize = 512;
         byte[] buffer = new byte[bufferSize];
 
         // we need to know how may bytes were read to write them to the byteBuffer
@@ -114,7 +114,7 @@ public class SoundManager {
     }
 
     public void setVolume(float vol) {
-        audioTrack.setStereoVolume(vol, vol);
+        //audioTrack.setStereoVolume(vol, vol);
     }
 
     public void stop() {
@@ -137,13 +137,13 @@ public class SoundManager {
         mReverb.setPreset(PresetReverb.PRESET_LARGEROOM);
         mReverb.setEnabled(true);
         audioTrack.attachAuxEffect(mReverb.getId());
-        audioTrack.setAuxEffectSendLevel(1.0f);*/
+        audioTrack.setAuxEffectSendLevel(0.9f);*/
     }
 
     public void play(int resourceId) {
 
         final int res = resourceId;
-        final int bufferSize = 1024;
+        final int bufferSize = 512;
 
         Thread audioThread = new Thread(){
             public void run(){
@@ -151,9 +151,18 @@ public class SoundManager {
                 InputStream fin = context.getResources().openRawResource(res);
                 DataInputStream dis = new DataInputStream(fin);
 
+                // Skip WAV header
+                try
+                {
+                    if (dis.available() > 44)
+                        dis.skipBytes(44);
+                } catch (IOException e) {
+
+                }
+
                 if (audioTrack!=null) {
                     try {
-
+                         /*
                         switch (audioTrack.getPlayState()) {
                             case AudioTrack.PLAYSTATE_PAUSED:
                                 SoundManager.this.stop();
@@ -169,7 +178,9 @@ public class SoundManager {
                                 //audioTrack.reloadStaticData();
                                 audioTrack.play();
                                 break;
-                        }
+                        } */
+
+                        audioTrack.play();
 
                         // Write the byte array to the track
                         int i = 0;
