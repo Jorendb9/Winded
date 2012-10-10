@@ -60,6 +60,10 @@ public class MainActivity extends Activity {
                             }
                         }
 
+                        for(int z = 0; z < keysBeingPressed.size();z++) {
+                            Log.d(TAG, "pressed: " + keysBeingPressed.get(z).key);
+                        }
+
                     } catch(Exception ex) {
 
                     }
@@ -67,7 +71,6 @@ public class MainActivity extends Activity {
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_POINTER_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    //canvasView.CheckCollision(0, 0);
 
                     Log.d(TAG, "Lift up");
                     break;

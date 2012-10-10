@@ -65,28 +65,20 @@ public class Instrument {
     public void play(float breath) {
 
         if (pressedKeys.size() == 0 || !this.hasBreath(breath)) {
-            if (isPlaying) {
-                currentTrack.stopPlaying();
-            }
+            currentTrack.stopPlaying();
             isPlaying = false;
             return;
         }
 
-        // Get most recently pressed key
-        Keys currentKey = pressedKeys.get(pressedKeys.size() - 1);
-
-        // If sharp key is pressed
-        if (isSharpPressed()) {
-            switch (currentKey) {
-                case C:
-                case D:
-                case F:
-                case G:
-                case A:
-                    currentKey = Keys.values()[currentKey.ordinal() + 1];
-                    break;
-            }
-        }
+        // Get highest pressed key
+        Keys currentKey = null;
+        if (isPressed(Keys.B)) currentKey = Keys.B;
+        else if (isPressed(Keys.A)) currentKey = Keys.A;
+        else if (isPressed(Keys.G)) currentKey = Keys.G;
+        else if (isPressed(Keys.F)) currentKey = Keys.F;
+        else if (isPressed(Keys.E)) currentKey = Keys.E;
+        else if (isPressed(Keys.D)) currentKey = Keys.D;
+        else if (isPressed(Keys.C)) currentKey = Keys.C;
 
         // get velocity based on breath level which will range from 0 to 12.x
         float velocity = breath / 10;
@@ -119,9 +111,9 @@ public class Instrument {
         }
 
         try {
-            //@todo - make this dynamic
-                currentTrack.play(resource);
+            currentTrack.play(resource);
             isPlaying = true;
+            Log.d(TAG, "Playing track now...");
         } catch(Exception ex) {
             Log.d(TAG, ex.getMessage());
         }
@@ -135,6 +127,10 @@ public class Instrument {
     public void pressKey(Keys key) {
         if (pressedKeys.contains(key)) return;
         pressedKeys.add(key);
+    }
+
+    public boolean isPressed(Keys key) {
+        return pressedKeys.contains(key);
     }
 
     /**
