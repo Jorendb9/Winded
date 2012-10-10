@@ -7,10 +7,7 @@ import android.media.AudioTrack;
 import android.media.audiofx.PresetReverb;
 import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 
 /**
@@ -28,99 +25,16 @@ public class SoundManager {
 
     public SoundManager(Context context) {
         this.context = context;
-        initAudio();
-    }
-
-    private void initAudio() {
-
-            /*
-      // Load audio data
-      for (Keys key : Keys.values()) {
-
-          try {
-              byte[] byteData;
-              int resourceId;
-
-              // @todo - this seems like it could be refactored...
-              switch(key) {
-                  case C :
-                      resourceId = R.raw.c;
-                      break;
-                  case D :
-                      resourceId = R.raw.d;
-                      break;
-                  case E :
-                      resourceId = R.raw.e;
-                      break;
-                  case F :
-                      resourceId = R.raw.f;
-                      break;
-                  case G :
-                      resourceId = R.raw.g;
-                      break;
-                  case A :
-                      resourceId = R.raw.a;
-                      break;
-                  case B :
-                      resourceId = R.raw.b;
-                      break;
-                  default:
-                          throw new Exception("No resource found for key: " + key);
-              }
-
-              InputStream audioStream = appContext.getResources().openRawResource(resourceId);
-              byteData = readBytes(audioStream);
-              soundPool.put(key, byteData);
-          } catch(Exception ex) {
-              ex.printStackTrace();
-              return;
-          }
-      }      */
-
-            // Set and push to audio track..
-            int intSize = android.media.AudioTrack.getMinBufferSize(16000, AudioFormat.CHANNEL_OUT_STEREO,
-                    AudioFormat.ENCODING_PCM_16BIT);
-
-            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 16000, AudioFormat.CHANNEL_OUT_STEREO,
-                    AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
-
-            initReverb();
-        }
-
-
-    private void stopAudio() {
-        // @todo - need to stop, not pause, right?
-        /*if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-            audioTrack.stop();
-        } */
-    }
-
-    private byte[] readBytes(InputStream inputStream) throws IOException {
-        // this dynamically extends to take the bytes you read
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-
-        // this is storage overwritten on each iteration with bytes
-        int bufferSize = 512;
-        byte[] buffer = new byte[bufferSize];
-
-        // we need to know how may bytes were read to write them to the byteBuffer
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-
-        // and then we can return your byte array.
-        return byteBuffer.toByteArray();
     }
 
     public void setVolume(float vol) {
-        //audioTrack.setStereoVolume(vol, vol);
+        audioTrack.setStereoVolume(vol, vol);
     }
 
     public void stop() {
         // pause and flush for an immediate stop
-        //audioTrack.pause();
-        //audioTrack.flush();
+        audioTrack.stop();
+        audioTrack.release();
     }
 
     private void initReverb() {
@@ -148,58 +62,42 @@ public class SoundManager {
         Thread audioThread = new Thread(){
             public void run(){
 
-                InputStream fin = context.getResources().openRawResource(res);
-                DataInputStream dis = new DataInputStream(fin);
+                // define the buffer size for audio track
+                int minBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+                int bufferSize = 512;
+                audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO,
+                        AudioFormat.ENCODING_PCM_16BIT, minBufferSize, AudioTrack.MODE_STREAM);
+                //String filepath = "File Path";
 
-                // Skip WAV header
-                try
-                {
-                    if (dis.available() > 44)
-                        dis.skipBytes(44);
-                } catch (IOException e) {
+                int count = 0;
+                byte[] data = new byte[bufferSize];
+                try {
+                    InputStream fileInputStream = context.getResources().openRawResource(res);  // new FileInputStream(filepath);
+                    DataInputStream dataInputStream = new DataInputStream(fileInputStream);
 
-                }
+                    // skip wav header
+                    if (dataInputStream.available() > 44)
+                        dataInputStream.skipBytes(44);
 
-                if (audioTrack!=null) {
-                    try {
-                         /*
-                        switch (audioTrack.getPlayState()) {
-                            case AudioTrack.PLAYSTATE_PAUSED:
-                                SoundManager.this.stop();
-                                //audioTrack.reloadStaticData();
-                                audioTrack.play();
-                                break;
-                            case AudioTrack.PLAYSTATE_PLAYING:
-                                SoundManager.this.stop();
-                                //audioTrack.reloadStaticData();
-                                audioTrack.play();
-                                break;
-                            case AudioTrack.PLAYSTATE_STOPPED:
-                                //audioTrack.reloadStaticData();
-                                audioTrack.play();
-                                break;
-                        } */
+                    audioTrack.play();
 
-                        audioTrack.play();
-
-                        // Write the byte array to the track
-                        int i = 0;
-                        byte[] s = new byte[bufferSize];
-                        while((i = dis.read(s, 0, bufferSize)) > -1){
-                            audioTrack.write(s, 0, i);
-                        }
-                        audioTrack.stop();
-                        //audioTrack.setPlaybackHeadPosition(0);
-                        //audioTrack.release();
-                        dis.close();
-                        fin.close();
-                    }   catch (Exception ex) {
-                        ex.printStackTrace();
+                    while((count = dataInputStream.read(data, 0, bufferSize)) > -1){
+                        audioTrack.write(data, 0, count);
                     }
-                }
-                else
-                    Log.d("TCAudio", "audio track is not initialised ");
 
+                    if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+                        audioTrack.pause();
+                        audioTrack.flush();
+                        audioTrack.release();
+                    }
+                    dataInputStream.close();
+                    fileInputStream.close();
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         };
         audioThread.start();
