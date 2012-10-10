@@ -91,16 +91,14 @@ public class Track {
 
         // doesn't seem to be working?
         // @see http://stackoverflow.com/questions/10409122/android-mediaplayer-with-audioeffect-getting-error-22-0
-        /*PresetReverb mReverb = new PresetReverb(1, 0);
+        PresetReverb mReverb = new PresetReverb(1, 0);
         mReverb.setPreset(PresetReverb.PRESET_LARGEROOM);
         mReverb.setEnabled(true);
         audioTrack.attachAuxEffect(mReverb.getId());
-        audioTrack.setAuxEffectSendLevel(0.9f);*/
+        audioTrack.setAuxEffectSendLevel(0.9f);
     }
 
-    public void play(int resourceId) {
-
-        final int res = resourceId;
+    public void play() {
 
         Thread audioThread = new Thread(){
             public void run(){
@@ -112,6 +110,8 @@ public class Track {
                     int minBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
                     audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO,
                             AudioFormat.ENCODING_PCM_16BIT, minBufferSize, AudioTrack.MODE_STREAM);
+
+                    initReverb();
 
                     audioTrack.play();
                     audioTrack.write(soundData, 0, soundData.length);

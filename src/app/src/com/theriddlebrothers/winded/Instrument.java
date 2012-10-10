@@ -110,7 +110,7 @@ public class Instrument {
         int resource = 0;
 
         try {
-            soundPool.get(currentKey).play(resource);
+            soundPool.get(currentKey).play();
             isPlaying = true;
             Log.d(TAG, "Playing track now...");
         } catch(Exception ex) {
