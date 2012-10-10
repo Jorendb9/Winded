@@ -23,6 +23,7 @@ public class Instrument {
 
     private int register = 4;
 
+
     public enum Keys {
         C,
         //CSharp,
@@ -44,13 +45,20 @@ public class Instrument {
     private final double MIN_BREATH_LEVEL = 1.0;
     private boolean isPlaying = false;
     private Keys lastKey;
-    private HashMap<Keys, byte[]> soundPool;
-    private Track currentTrack;
+    HashMap<Keys, Track> soundPool;
+    private Keys currentKey;
 
     public Instrument(AudioManager audioManager, Context context) {
         pressedKeys = new ArrayList<Keys>();
-        soundPool = new HashMap<Keys, byte[]>();
-        currentTrack = new Track(context);
+        soundPool = new HashMap<Keys, Track>();
+
+        soundPool.put(Keys.C, new Track(context, R.raw.c));
+        soundPool.put(Keys.D, new Track(context, R.raw.d));
+        soundPool.put(Keys.E, new Track(context, R.raw.e));
+        soundPool.put(Keys.F, new Track(context, R.raw.f));
+        soundPool.put(Keys.G, new Track(context, R.raw.g));
+        soundPool.put(Keys.A, new Track(context, R.raw.a));
+        soundPool.put(Keys.B, new Track(context, R.raw.b));
     }
 
     public Keys currentKey() {
@@ -65,13 +73,12 @@ public class Instrument {
     public void play(float breath) {
 
         if (pressedKeys.size() == 0 || !this.hasBreath(breath)) {
-            currentTrack.stopPlaying();
+            if (currentKey != null) soundPool.get(currentKey).stopPlaying();
             isPlaying = false;
             return;
         }
 
         // Get highest pressed key
-        Keys currentKey = null;
         if (isPressed(Keys.B)) currentKey = Keys.B;
         else if (isPressed(Keys.A)) currentKey = Keys.A;
         else if (isPressed(Keys.G)) currentKey = Keys.G;
@@ -88,7 +95,7 @@ public class Instrument {
 
         // Don't re-play same sound, just set volume
         if (lastKey == currentKey && isPlaying) {
-            currentTrack.setVolume(velocity);
+            soundPool.get(currentKey).setVolume(velocity);
             return;
         }
 
@@ -96,22 +103,14 @@ public class Instrument {
             Log.d(TAG, "Pressed key: " + pressedKeys.get(i));
         }
 
+        if (lastKey != null) soundPool.get(lastKey).stopPlaying();
+
         lastKey = currentKey;
 
         int resource = 0;
 
-        switch(currentKey) {
-            case C: resource = R.raw.c; break;
-            case D: resource = R.raw.d; break;
-            case E: resource = R.raw.e; break;
-            case F: resource = R.raw.f; break;
-            case G: resource = R.raw.g; break;
-            case A: resource = R.raw.a; break;
-            case B: resource = R.raw.b; break;
-        }
-
         try {
-            currentTrack.play(resource);
+            soundPool.get(currentKey).play(resource);
             isPlaying = true;
             Log.d(TAG, "Playing track now...");
         } catch(Exception ex) {
