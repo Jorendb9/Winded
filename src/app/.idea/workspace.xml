@@ -12,7 +12,7 @@
     </option>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_LOG_LEVEL" value="ERROR" />
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="DEBUG" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6d48377f-e1f4-47e2-aca6-2c03d97470c5" name="Default" comment="" />
@@ -72,15 +72,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="SoundManager.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="24" selection-start="1511" selection-end="1511" vertical-scroll-proportion="0.25142208">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="AndroidManifest.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
           <provider selected="true" editor-type-id="text-editor">
@@ -93,7 +84,34 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="118" column="47" selection-start="4477" selection-end="4477" vertical-scroll-proportion="0.0">
+            <state line="127" column="0" selection-start="5021" selection-end="5021" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SoundMeter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundMeter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="63" column="0" selection-start="2244" selection-end="2244" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Instrument.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="122" column="0" selection-start="3245" selection-end="3245" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Track.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Track.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="74" column="40" selection-start="2199" selection-end="2199" vertical-scroll-proportion="0.15726496">
               <folding />
             </state>
           </provider>
@@ -119,12 +137,12 @@
         <option value="$PROJECT_DIR$/res/layout/activity_main.xml" />
         <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java" />
         <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundMeter.java" />
-        <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/Track.java" />
-        <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java" />
         <option value="$PROJECT_DIR$/res/layout/activity_splash.xml" />
         <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/SplashActivity.java" />
         <option value="$PROJECT_DIR$/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundManager.java" />
+        <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java" />
+        <option value="$PROJECT_DIR$/src/com/theriddlebrothers/winded/Track.java" />
       </list>
     </option>
   </component>
@@ -540,7 +558,7 @@
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.10545678" sideWeight="0.7439294" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24981017" sideWeight="0.74657536" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="true" weight="0.14569536" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" x="-2958" y="-253" width="1281" height="530" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="true" weight="0.14569536" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" x="-2958" y="-253" width="1281" height="530" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -550,8 +568,8 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17539863" sideWeight="0.21746576" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18945432" sideWeight="0.73730683" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32534248" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18945432" sideWeight="0.6754967" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3245033" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292357" sideWeight="0.62157536" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -655,16 +673,6 @@
         <state line="15" column="41" selection-start="595" selection-end="595" vertical-scroll-proportion="0.33280757" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="19" selection-start="2623" selection-end="2623" vertical-scroll-proportion="0.20572057" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundMeter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="8" selection-start="1054" selection-end="1054" vertical-scroll-proportion="0.13971397" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="31" column="28" selection-start="1157" selection-end="1157" vertical-scroll-proportion="0.0" />
@@ -677,16 +685,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java">
+    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundMeter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="47" selection-start="4477" selection-end="4477" vertical-scroll-proportion="0.0">
+        <state line="63" column="0" selection-start="2244" selection-end="2244" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/SoundManager.java">
+    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="24" selection-start="1511" selection-end="1511" vertical-scroll-proportion="0.25142208">
+        <state line="127" column="0" selection-start="5021" selection-end="5021" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Instrument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="122" column="0" selection-start="3245" selection-end="3245" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/theriddlebrothers/winded/Track.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="74" column="40" selection-start="2199" selection-end="2199" vertical-scroll-proportion="0.15726496">
           <folding />
         </state>
       </provider>

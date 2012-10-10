@@ -40,17 +40,17 @@ public class Instrument {
         //Octave
     }
 
-    SoundManager soundManager;
     private ArrayList<Keys> pressedKeys;
     private final double MIN_BREATH_LEVEL = 1.0;
     private boolean isPlaying = false;
     private Keys lastKey;
     private HashMap<Keys, byte[]> soundPool;
+    private Track currentTrack;
 
     public Instrument(AudioManager audioManager, Context context) {
         pressedKeys = new ArrayList<Keys>();
         soundPool = new HashMap<Keys, byte[]>();
-        soundManager = new SoundManager(context);
+        currentTrack = new Track(context);
     }
 
     public Keys currentKey() {
@@ -65,7 +65,9 @@ public class Instrument {
     public void play(float breath) {
 
         if (pressedKeys.size() == 0 || !this.hasBreath(breath)) {
-            if (isPlaying) soundManager.stop();
+            if (isPlaying) {
+                currentTrack.stopPlaying();
+            }
             isPlaying = false;
             return;
         }
@@ -94,7 +96,7 @@ public class Instrument {
 
         // Don't re-play same sound, just set volume
         if (lastKey == currentKey && isPlaying) {
-            soundManager.setVolume(velocity);
+            currentTrack.setVolume(velocity);
             return;
         }
 
@@ -118,7 +120,7 @@ public class Instrument {
 
         try {
             //@todo - make this dynamic
-            if (!isPlaying) soundManager.play(resource);
+                currentTrack.play(resource);
             isPlaying = true;
         } catch(Exception ex) {
             Log.d(TAG, ex.getMessage());
